@@ -1,0 +1,26 @@
+bot:
+  token: "<TOKEN>"
+  command_prefix: "<PREFIX>"
+  owner: 0123456789
+  co_owners:
+  - 0123456789
+  - 0123456789
+  development: true
+  status:
+    type: "DEFAULT"
+    name: "<NAME>"
+
+guild:
+  id: 0123456789
+  applications:
+    fanclub:
+    - 0123456789
+    - 0123456789
+    traitor:
+    - 0123456789
+    - 0123456789
+  roles:
+    fanclub: 0123456789
+    traitor: 0123456789
+
+
