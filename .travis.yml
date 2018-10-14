@@ -3,15 +3,18 @@ sudo: required
 language: java
 
 services:
-- docker
+  - docker
+
+branches:
+  only:
+    - master
 
 before_install:
-- openssl aes-256-cbc -K $encrypted_ae9738f66055_key -iv $encrypted_ae9738f66055_iv
-  -in secrets.gradle.kts.enc -out secrets.gradle.kts -d
-- chmod +x gradlew
+  - "openssl aes-256-cbc -K $encrypted_ae9738f66055_key -iv $encrypted_ae9738f66055_iv\n-in secrets.gradle.kts.enc -out secrets.gradle.kts -d"
+  - 'chmod +x gradlew'
 
 install:
-- "./gradlew cacheDependencies"
+  - './gradlew cacheDependencies'
 
 script:
-- "./gradlew ci"
+  - './gradlew ci'
