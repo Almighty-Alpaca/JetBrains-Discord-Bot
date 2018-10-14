@@ -1,6 +1,7 @@
 package com.almightyalpaca.discord.bot.jetbrains
 
 import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand
+import com.almightyalpaca.discord.bot.jetbrains.commands.PingCommand
 import com.almightyalpaca.discord.bot.jetbrains.listeners.UserUpdateGameEventListener
 import com.almightyalpaca.discord.bot.jetbrains.settings.Bot
 import com.almightyalpaca.discord.bot.jetbrains.settings.Guild
@@ -39,6 +40,7 @@ fun main(vararg args: String)
             .setGame(Game.playing("with roles"))
             .setServerInvite(config[Guild.invite])
             .addCommand(EvalCommand(config))
+            .addCommand(PingCommand())
             .build()
 
     JDABuilder()
