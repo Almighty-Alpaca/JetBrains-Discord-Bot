@@ -8,7 +8,6 @@ import javax.script.ScriptException
 
 class EvalCommand(private val config: Config) : Command()
 {
-
     init
     {
         name = "eval"
@@ -46,6 +45,8 @@ class EvalCommand(private val config: Config) : Command()
         }
         catch (e: ScriptException)
         {
+            e.printStackTrace()
+            
             e
         }
 
@@ -54,7 +55,13 @@ class EvalCommand(private val config: Config) : Command()
 
         val response = "Executed in ${timeUsed}ns"
         if (result is Exception)
-            event.replyError("$response with ${result.cause?.javaClass?.simpleName}: ${result.cause?.message} on line ${result.stackTrace[0].lineNumber}")
+        {
+            val cause = result.cause
+            if (cause == null)
+                event.replyError("$response with ${result.javaClass.simpleName}: ${result.message} on line ${result.stackTrace[0].lineNumber}")
+            else
+                event.replyError("$response with ${cause.javaClass.simpleName}: ${cause.message} on line ${cause.stackTrace[0].lineNumber}")
+        }
         else if (result != null)
             event.replySuccess("$response , result = $result")
     }
