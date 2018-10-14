@@ -1,4 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdates
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
@@ -39,28 +38,58 @@ val secrets = file("secrets.gradle.kts")
 if (secrets.exists())
 {
     apply(from = secrets)
-}
 
-jib {
-    from {
-        image = "openjdk@sha256:1d250ad181da7a145504a11b6c02d2a39ac55a9510a51b353950c124e9987772" // directly point at the arm image
-    }
+    jib {
+        from {
+            image = "openjdk@sha256:1d250ad181da7a145504a11b6c02d2a39ac55a9510a51b353950c124e9987772" // directly point at the arm image
 
-    to {
-        image = project.extra["DOCKER_IMAGE"] as String?
+            auth {
+                username = project.extra["DOCKER_BASE_USERNAME"] as String?
+                password = project.extra["DOCKER_BASE_PASSWORD"] as String?
+            }
+        }
 
-        auth {
-            username = project.extra["DOCKER_USERNAME"] as String?
-            password = project.extra["DOCKER_PASSWORD"] as String?
+        to {
+            image = project.extra["DOCKER_TARGET_IMAGE"] as String?
+
+            auth {
+                username = project.extra["DOCKER_TARGET_USERNAME"] as String?
+                password = project.extra["DOCKER_TARGET_PASSWORD"] as String?
+            }
+        }
+
+        container {
+            environment = hashMapOf()
+
+            environment["DOCKER"] = "true"
+
+            useCurrentTimestamp = true
         }
     }
+}
 
-    container {
-        environment = hashMapOf()
+tasks.create(name = "ci") {
+    group = "ci"
 
-        environment["DOCKER"] = "true"
+    val branch by lazy { System.getenv("TRAVIS_BRANCH") }
+    val isPR by lazy { System.getenv("TRAVIS_PULL_REQUEST") != "false" }
 
-        useCurrentTimestamp = true
+    if (branch == "master" && !isPR)
+        dependsOn("jib")
+    else
+        dependsOn("test")
+}
+
+tasks["jib"].apply {
+    dependsOn("test")
+    mustRunAfter("test")
+}
+
+tasks.create(name = "cacheDependencies") {
+    doLast {
+        configurations
+                .filter { conf -> conf.isCanBeResolved }
+                .onEach { conf -> conf.files }
     }
 }
 
@@ -69,17 +98,21 @@ tasks {
         resolutionStrategy {
             componentSelection {
                 all {
-                    val rejected = sequenceOf("alpha", "beta", "rc", "cr", "m", "preview")
+                    sequenceOf("alpha", "beta", "rc", "cr", "m", "preview")
                             .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-]*") }
                             .any { regex -> regex.matches(candidate.version) }
-                    if (rejected)
-                    {
-                        reject("Release candidate")
-                    }
+                            .ifTrue { reject("Release candidate") }
                 }
             }
         }
     }
 }
 
-tasks.filter { task -> task.name.startsWith("jib") }.onEach { task -> task.group = "docker" }
+tasks.filter { task -> task.name.startsWith("jib") }
+        .onEach { task -> task.group = "docker" }
+
+inline fun Boolean.ifTrue(then: () -> Unit)
+{
+    if (this)
+        then()
+}
