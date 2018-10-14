@@ -14,6 +14,8 @@ class Bot
         val co_owners by optional<Set<Long>>(Collections.emptySet())
 
         val command_prefix by required<String>()
+
+        val development by optional(false)
     }
 
     class Status

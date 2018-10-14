@@ -1,33 +1,35 @@
 package com.almightyalpaca.discord.bot.jetbrains.listeners
 
+import com.almightyalpaca.discord.bot.jetbrains.settings.Bot
 import com.almightyalpaca.discord.bot.jetbrains.settings.Guild
 import com.uchuhimo.konf.Config
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.entities.RichPresence
-import net.dv8tion.jda.core.events.Event
-import net.dv8tion.jda.core.events.ReadyEvent
+import net.dv8tion.jda.core.events.guild.GuildReadyEvent
 import net.dv8tion.jda.core.events.user.update.UserUpdateGameEvent
-import net.dv8tion.jda.core.hooks.EventListener
+import net.dv8tion.jda.core.hooks.ListenerAdapter
 import java.util.*
 
-class UserUpdateGameEventListener(private val config: Config) : EventListener
+class UserUpdateGameEventListener(private val config: Config) : ListenerAdapter()
 {
-    override fun onEvent(event: Event?)
+    override fun onUserUpdateGame(event: UserUpdateGameEvent)
     {
-        if (event is UserUpdateGameEvent)
-        {
+        if (config[Bot.development])
+            return
 
-            if (event.guild.idLong == config[Guild.id])
-                checkMember(event.member)
-        }
-        else if (event is ReadyEvent)
-        {
-            val guild = event.jda.getGuildById(config[Guild.id])
+        if (event.guild.idLong == config[Guild.id])
+            checkMember(event.member)
 
-            if (guild != null)
-                for (member in guild.memberCache)
-                    checkMember(member)
-        }
+    }
+
+    override fun onGuildReady(event: GuildReadyEvent)
+    {
+        if (config[Bot.development])
+            return
+
+        if (event.guild.idLong == config[Guild.id])
+            for (member in event.guild.memberCache)
+                checkMember(member)
     }
 
     private fun checkMember(member: Member)
