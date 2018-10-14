@@ -10,7 +10,7 @@ branches:
     - master
 
 before_install:
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -K $encrypted_ae9738f66055_key -iv $encrypted_ae9738f66055_iv -in secrets.gradle.kts.enc -out secrets.gradle.kts -d; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -md sha256 -K $encrypted_ae9738f66055_key -iv $encrypted_ae9738f66055_iv -in secrets.gradle.kts.enc -out secrets.gradle.kts -d; fi
   - chmod +x gradlew
 
 install:
