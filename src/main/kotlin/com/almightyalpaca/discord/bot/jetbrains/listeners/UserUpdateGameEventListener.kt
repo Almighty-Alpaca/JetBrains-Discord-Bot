@@ -19,7 +19,6 @@ class UserUpdateGameEventListener(private val config: Config) : ListenerAdapter(
 
         if (event.guild.idLong == config[Guild.id])
             checkMember(event.member)
-
     }
 
     override fun onGuildReady(event: GuildReadyEvent)
