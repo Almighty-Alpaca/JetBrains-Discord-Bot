@@ -40,9 +40,15 @@ class UserUpdateGameEventListener(private val config: Config) : ListenerAdapter(
         val fanclub = Collections.singleton(guild.getRoleById(config[Guild.Roles.fanclub]))
         val traitor = Collections.singleton(guild.getRoleById(config[Guild.Roles.traitor]))
 
-        if (config[Guild.Applications.fanclub].contains(game.applicationIdLong))
+        val fanclubApps = config[Guild.Applications.fanclub]
+        val traitorApps = config[Guild.Applications.traitor]
+
+        val isFanclubApp = fanclubApps.contains(game.applicationIdLong)
+        val isTraitorApp = traitorApps.contains(game.applicationIdLong)
+
+        if (isFanclubApp)
             guild.controller.modifyMemberRoles(member, fanclub, traitor).queue()
-        else if (config[Guild.Applications.traitor].contains(game.applicationIdLong))
+        else if (isTraitorApp)
             guild.controller.modifyMemberRoles(member, traitor, fanclub).queue()
     }
 }

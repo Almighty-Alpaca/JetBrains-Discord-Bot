@@ -27,7 +27,9 @@ dependencies {
 
     compile(group = "com.jagrosh", name = "jda-utilities-command", version = "2.1.4")
     compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "2.1.4")
-    compile(group = "net.dv8tion", name = "JDA", version = "3.8.1_437")
+    compile(group = "net.dv8tion", name = "JDA", version = "3.8.1_437") {
+        exclude(group = "club.minnced", module = "opus-java")
+    }
 
     compile(group = "com.uchuhimo", name = "konf", version = "0.11")
     compile(group = "org.apache.commons", name = "commons-lang3", version = "3.8.1")
