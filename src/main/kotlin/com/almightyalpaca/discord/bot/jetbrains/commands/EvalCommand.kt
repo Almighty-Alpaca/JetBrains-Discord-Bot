@@ -1,8 +1,16 @@
 package com.almightyalpaca.discord.bot.jetbrains.commands
 
+import com.almightyalpaca.discord.bot.jetbrains.utils.dummy.CommandClientDummy
+import com.almightyalpaca.discord.bot.jetbrains.utils.dummy.GuildDummy
+import com.almightyalpaca.discord.bot.jetbrains.utils.dummy.MemberDummy
+import com.almightyalpaca.discord.bot.jetbrains.utils.dummy.TextChannelDummy
 import com.jagrosh.jdautilities.command.Command
+import com.jagrosh.jdautilities.command.CommandClient
 import com.jagrosh.jdautilities.command.CommandEvent
 import com.uchuhimo.konf.Config
+import net.dv8tion.jda.core.entities.Guild
+import net.dv8tion.jda.core.entities.Member
+import net.dv8tion.jda.core.entities.TextChannel
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 
@@ -12,7 +20,7 @@ class EvalCommand(private val config: Config) : Command()
     {
         name = "eval"
         hidden = true
-        guildOnly = false
+        guildOnly = true
     }
 
     private val manager = ScriptEngineManager()
@@ -24,29 +32,31 @@ class EvalCommand(private val config: Config) : Command()
 
         val engine = manager.getEngineByExtension("kts")
 
-        engine.put("self", event.author)
-        engine.put("bot", event.selfUser)
-        engine.put("channel", event.channel)
-        engine.put("client", event.client)
-        engine.put("config", config)
-
-        if (event.channelType.isGuild)
-        {
-            engine.put("selfMember", event.member)
-            engine.put("botMember", event.selfMember)
-            engine.put("guild", event.guild)
-        }
+        EvalVars.self = event.member
+        EvalVars.bot = event.selfMember
+        EvalVars.channel = event.textChannel
+        EvalVars.guild = event.guild
+        EvalVars.client = event.client
+        EvalVars.config = config
 
         val startTime = System.nanoTime()
 
         val result = try
         {
-            engine.eval(event.args)
+            engine.eval("""
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.self
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.bot
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.channel
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.guild
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.client
+                            import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.config
+                         """
+                        + event.args)
         }
         catch (e: ScriptException)
         {
             e.printStackTrace()
-            
+
             e
         }
 
@@ -64,5 +74,18 @@ class EvalCommand(private val config: Config) : Command()
         }
         else if (result != null)
             event.replySuccess("$response , result = $result")
+    }
+
+    class EvalVars
+    {
+        companion object
+        {
+            var self: Member = MemberDummy()
+            var bot: Member = MemberDummy()
+            var channel: TextChannel = TextChannelDummy()
+            var guild: Guild = GuildDummy()
+            var client: CommandClient = CommandClientDummy()
+            var config: Config = Config()
+        }
     }
 }
