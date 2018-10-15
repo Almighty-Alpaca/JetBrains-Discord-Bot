@@ -14,7 +14,7 @@ env:
     secure: ignuZBzMYdtEzYjQBAsXqVzSA2K4QPx7W/xfVbJkdvkyU3+krfvO7huEqQv5tjj6dos3tTo82yaT6a+dyIKmPhP3/c018U80dvVd74YTcHpVbwtNprHgRE9XufWh2S9nxbyIpAsSKNpwY3rr5YK/dbWUUMGGrtVNY/eq5lNh2Fr0CLSF21buRF0djkP1gBXr4idXsLeZb3+Jg8y+fgCgTxM2/ewFNOz/ARTEQXzhyfpjdC8zhSAnSSgutjoidZ3pIZujLy6UdU35db8Fbk3pXVtQ/DZGd3yxbH099LUrhLV+3sY+Z32esOWqBikcVuC8yi9B7BM5t+EVA8jA7kare5mvd+8C6HolA0EGN0GclsTbsbM5ylNzdFcZCpRnFv95+MKstNx3dwtYiMCfbIo6hCR0JTOPSALXzvQCJ9Y+XGHIM0R+UfzApQ3h0ZAK7iF8CYxFZajDlmxF4BZ35hGFW/TG+JzRoiujPhjb/6saKmPJYHLA7f1iqtiQ70kFfxvASicBmtlbUNOQ41MKqajGrq4ZH/FPyFIAbPJ+gUJtVTDq7Om5xlAj6dIDk13Crd9RjlotCm3fO24fm46yjW375XWmZ1FK4xVeVZBDmtUysIkgcXUtlegV5/YDvo9Kiksma/hZ84nLYxPrfKwzbiVydHLfEcCbLHsezj/O6C60gPU=
 
 before_install:
-  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -md sha256 -K "$FILE_PASSWORD" -in secrets.gradle.kts.enc -out secrets.gradle.kts -d; fi
+  - if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then openssl aes-256-cbc -md sha256 -k "$FILE_PASSWORD" -in secrets.gradle.kts.enc -out secrets.gradle.kts -d; fi
   - chmod +x gradlew
 
 install:
