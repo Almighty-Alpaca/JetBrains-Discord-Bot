@@ -60,8 +60,9 @@ if (secrets.exists()) {
         }
 
         container {
-            environment = hashMapOf()
+            mainClass = application.mainClassName
 
+            environment = hashMapOf()
             environment["DOCKER"] = "true"
 
             useCurrentTimestamp = true
