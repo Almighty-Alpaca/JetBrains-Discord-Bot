@@ -1,11 +1,11 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-    kotlin("jvm") version "1.2.71"
-    id("com.google.cloud.tools.jib") version "0.9.12"
-    id("com.github.ben-manes.versions") version "0.20.0"
-    id("com.github.johnrengelman.shadow") version "4.0.1"
+    kotlin("jvm") version "1.3.41"
+    id("com.google.cloud.tools.jib") version "1.4.0"
+    id("com.github.ben-manes.versions") version "0.22.0"
+    id("com.github.johnrengelman.shadow") version "5.1.0"
 }
 
 group = "com.almightyalpaca.discord.bot.jetbrains"
@@ -20,25 +20,24 @@ repositories {
 }
 
 dependencies {
-    compile(kotlin(module = "stdlib", version = "1.2.71"))
-    compile(kotlin(module = "script-runtime", version = "1.2.71"))
-    compile(kotlin(module = "script-util", version = "1.2.71"))
-    compile(kotlin(module = "compiler-embeddable", version = "1.2.71"))
+    compile(kotlin(module = "stdlib"))
+    compile(kotlin(module = "script-runtime"))
+    compile(kotlin(module = "script-util"))
+    compile(kotlin(module = "compiler-embeddable"))
 
-    compile(group = "com.jagrosh", name = "jda-utilities-command", version = "2.1.4")
-    compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "2.1.4")
-    compile(group = "net.dv8tion", name = "JDA", version = "3.8.1_437") {
+    compile(group = "com.jagrosh", name = "jda-utilities-command", version = "3.0.1")
+    compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "3.0.1")
+    compile(group = "net.dv8tion", name = "JDA", version = "4.0.0_39") {
         exclude(group = "club.minnced", module = "opus-java")
     }
 
-    compile(group = "com.uchuhimo", name = "konf", version = "0.11")
-    compile(group = "org.apache.commons", name = "commons-lang3", version = "3.8.1")
+    compile(group = "com.uchuhimo", name = "konf", version = "0.13.3")
+    compile(group = "org.apache.commons", name = "commons-lang3", version = "3.9")
     compile(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
 }
 
 val secrets = file("secrets.gradle.kts")
-if (secrets.exists())
-{
+if (secrets.exists()) {
     apply(from = secrets)
 
     jib {
@@ -70,51 +69,56 @@ if (secrets.exists())
     }
 }
 
-tasks.create(name = "ci") {
-    group = "ci"
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 
-    val branch by lazy { System.getenv("TRAVIS_BRANCH") }
-    val isPR by lazy { System.getenv("TRAVIS_PULL_REQUEST") != "false" }
+    create(name = "ci") {
+        group = "ci"
 
-    if (branch == "master" && !isPR)
-        dependsOn("jib")
-    else
+        val branch by lazy { System.getenv("TRAVIS_BRANCH") }
+        val isPR by lazy { System.getenv("TRAVIS_PULL_REQUEST") != "false" }
+
+        if (branch == "master" && !isPR)
+            dependsOn("jib")
+        else
+            dependsOn("test")
+    }
+
+    "jib" {
         dependsOn("test")
-}
+        mustRunAfter("test")
+    }
 
-tasks["jib"].apply {
-    dependsOn("test")
-    mustRunAfter("test")
-}
-
-tasks.create(name = "cacheDependencies") {
-    doLast {
-        configurations
+    create(name = "cacheDependencies") {
+        doLast {
+            configurations
                 .filter { conf -> conf.isCanBeResolved }
                 .onEach { conf -> conf.files }
+        }
     }
-}
 
-tasks {
-    "dependencyUpdates"(DependencyUpdatesTask::class) {
+    dependencyUpdates {
+        gradleReleaseChannel = "current"
+
         resolutionStrategy {
             componentSelection {
                 all {
-                    sequenceOf("alpha", "beta", "rc", "cr", "m", "preview")
-                            .map { qualifier -> Regex("(?i).*[.-]$qualifier[.\\d-]*") }
-                            .any { regex -> regex.matches(candidate.version) }
-                            .ifTrue { reject("Release candidate") }
+                    sequenceOf("alpha", "beta", "rc", "cr", "m", "preview", "eap", "pr")
+                        .map { qualifier -> Regex(".*[.-]$qualifier[.\\d-_]*", RegexOption.IGNORE_CASE) }
+                        .any { regex -> regex.matches(candidate.version) }
+                        .let { if (it) reject("snapshot") }
                 }
             }
         }
     }
-}
 
-tasks.filter { task -> task.name.startsWith("jib") }
+    withType<Wrapper> {
+        distributionType = Wrapper.DistributionType.ALL
+        gradleVersion = "5.5.1"
+    }
+
+    filter { task -> task.name.startsWith("jib") }
         .onEach { task -> task.group = "docker" }
-
-inline fun Boolean.ifTrue(then: () -> Unit)
-{
-    if (this)
-        then()
 }

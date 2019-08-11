@@ -1,22 +1,17 @@
 package com.almightyalpaca.discord.bot.jetbrains.utils
 
-import net.dv8tion.jda.core.entities.Game
+import net.dv8tion.jda.api.entities.Activity
 
-fun Game.of(type: Game.GameType? = null, name: String? = null, url: String? = null): Game?
-{
-    return when (type)
-    {
-        Game.GameType.STREAMING ->
-            return when (url)
-            {
+fun Activity.of(type: Activity.ActivityType? = null, name: String, url: String? = null): Activity? {
+    return when (type) {
+        Activity.ActivityType.STREAMING ->
+            when (url) {
                 null -> null
-                else -> Game.streaming(name, url)
+                else -> Activity.streaming(name, url)
             }
         null -> null
-        else ->
-        {
-            return Game.of(type, name)
-        }
+        else -> Activity.of(type, name)
+
     }
 }
 
