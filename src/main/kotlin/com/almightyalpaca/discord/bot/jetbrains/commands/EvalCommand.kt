@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 
-const val imports = """
+private const val imports = """
     import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.self
     import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.bot
     import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.channel
@@ -44,9 +44,7 @@ class EvalCommand(private val config: Config) : Command() {
         val startTime = System.nanoTime()
 
         val result = try {
-            engine.eval(
-                imports + event.args
-            )
+            engine.eval(imports + event.args)
         } catch (e: ScriptException) {
             e
         }
@@ -67,14 +65,12 @@ class EvalCommand(private val config: Config) : Command() {
             event.replySuccess("$response , result = $result")
     }
 
-    class EvalVars {
-        companion object {
-            lateinit var self: Member
-            lateinit var bot: Member
-            lateinit var channel: TextChannel
-            lateinit var guild: Guild
-            lateinit var client: CommandClient
-            var config: Config = Config()
-        }
+    object EvalVars {
+        lateinit var self: Member
+        lateinit var bot: Member
+        lateinit var channel: TextChannel
+        lateinit var guild: Guild
+        lateinit var client: CommandClient
+        var config: Config = Config()
     }
 }
