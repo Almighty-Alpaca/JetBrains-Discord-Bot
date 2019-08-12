@@ -21,9 +21,10 @@ repositories {
 
 dependencies {
     compile(kotlin(module = "stdlib"))
-    compile(kotlin(module = "script-runtime"))
     compile(kotlin(module = "script-util"))
     compile(kotlin(module = "compiler-embeddable"))
+    compile(kotlin(module = "scripting-compiler-embeddable"))
+    compile(kotlin(module = "test-junit"))
 
     compile(group = "com.jagrosh", name = "jda-utilities-command", version = "3.0.1")
     compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "3.0.1")
@@ -31,9 +32,15 @@ dependencies {
         exclude(group = "club.minnced", module = "opus-java")
     }
 
-    compile(group = "com.uchuhimo", name = "konf", version = "0.13.3")
+    compile(group = "com.uchuhimo", name = "konf", version = "0.13.3") {
+        exclude(group = "com.moandjiezana.toml", module = "toml4j")
+        exclude(group = "org.dom4j", module = "dom4j")
+        exclude(group = "org.eclipse.jgit", module = "org.eclipse.jgit")
+//        exclude(group = "", module = "")
+    }
     compile(group = "org.apache.commons", name = "commons-lang3", version = "3.9")
     compile(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
+    compile(group = "org.jetbrains", name = "annotations", version = "17.0.0")
 }
 
 val secrets = file("secrets.gradle.kts")

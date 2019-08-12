@@ -24,14 +24,12 @@ class EvalCommand(private val config: Config) : Command() {
         name = "eval"
         hidden = true
         guildOnly = true
+        ownerCommand = true
     }
 
     private val manager = ScriptEngineManager()
 
     override fun execute(event: CommandEvent) {
-        if (!event.isOwner)
-            return
-
         val engine = manager.getEngineByExtension("kts")
 
         EvalVars.self = event.member
