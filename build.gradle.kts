@@ -1,11 +1,13 @@
+import com.github.benmanes.gradle.versions.updates.gradle.GradleReleaseChannel
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     application
-    kotlin("jvm") version "1.3.41"
-    id("com.google.cloud.tools.jib") version "1.4.0"
-    id("com.github.ben-manes.versions") version "0.22.0"
-    id("com.github.johnrengelman.shadow") version "5.1.0"
+    kotlin("jvm")
+    id("com.google.cloud.tools.jib")
+    id("com.github.ben-manes.versions")
+    id("com.github.johnrengelman.shadow")
+    id("com.palantir.consistent-versions")
 }
 
 group = "com.almightyalpaca.discord.bot.jetbrains"
@@ -20,27 +22,39 @@ repositories {
 }
 
 dependencies {
+    // Kotlin standard library
     compile(kotlin(module = "stdlib"))
+
+    // Kotlin script engine
     compile(kotlin(module = "script-util"))
     compile(kotlin(module = "compiler-embeddable"))
     compile(kotlin(module = "scripting-compiler-embeddable"))
     compile(kotlin(module = "test-junit"))
 
-    compile(group = "com.jagrosh", name = "jda-utilities-command", version = "3.0.1")
-    compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "3.0.1")
-    compile(group = "net.dv8tion", name = "JDA", version = "4.0.0_39") {
+    // JDA (without audio)
+    compile(group = "net.dv8tion", name = "JDA") {
         exclude(group = "club.minnced", module = "opus-java")
     }
 
+    // JDA-Utilities
+    compile(group = "com.jagrosh", name = "jda-utilities-command", version = "3.0.1")
+    compile(group = "com.jagrosh", name = "jda-utilities-menu", version = "3.0.1")
+
+    // Konf (without unused language support)
     compile(group = "com.uchuhimo", name = "konf", version = "0.13.3") {
         exclude(group = "com.moandjiezana.toml", module = "toml4j")
         exclude(group = "org.dom4j", module = "dom4j")
         exclude(group = "org.eclipse.jgit", module = "org.eclipse.jgit")
-//        exclude(group = "", module = "")
+
+        // TODO: exclude more modules from Konf
+        // exclude(group = "", module = "")
     }
+
+    // Apache Commons Lang 3
     compile(group = "org.apache.commons", name = "commons-lang3", version = "3.9")
+
+    // Logback Classic
     compile(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
-    compile(group = "org.jetbrains", name = "annotations", version = "17.0.0")
 }
 
 val secrets = file("secrets.gradle.kts")
@@ -49,7 +63,7 @@ if (secrets.exists()) {
 
     jib {
         from {
-            image = "openjdk@sha256:1d250ad181da7a145504a11b6c02d2a39ac55a9510a51b353950c124e9987772" // directly point at the arm image
+            image = "adoptopenjdk@sha256:92f9133b5a90d5f17943ed2964aae56dd091f5c03601478e08d4241f66fb9cae" // directly point at the arm image
 
             auth {
                 username = project.extra["DOCKER_BASE_USERNAME"] as String?
@@ -108,7 +122,7 @@ tasks {
     }
 
     dependencyUpdates {
-        gradleReleaseChannel = "current"
+        gradleReleaseChannel = GradleReleaseChannel.RELEASE_CANDIDATE.toString()
 
         resolutionStrategy {
             componentSelection {
@@ -124,7 +138,7 @@ tasks {
 
     withType<Wrapper> {
         distributionType = Wrapper.DistributionType.ALL
-        gradleVersion = "5.5.1"
+        gradleVersion = "5.6-rc-2"
     }
 
     filter { task -> task.name.startsWith("jib") }

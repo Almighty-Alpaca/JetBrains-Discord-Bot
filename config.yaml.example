@@ -1,8 +1,7 @@
-bot:
-  token: "<TOKEN>"
-  command_prefix: "<PREFIX>"
-  owner: <ID>
-  development: true
+token: "<TOKEN>"
+command_prefix: "<PREFIX>"
+owner: <ID>
+development: true
 guilds:
   - id: <ID>
     groups:

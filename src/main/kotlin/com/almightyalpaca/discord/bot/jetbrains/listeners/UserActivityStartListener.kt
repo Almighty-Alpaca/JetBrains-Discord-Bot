@@ -36,11 +36,10 @@ class UserActivityStartListener(private val config: Config) : ListenerAdapter() 
             .find { it.id == member.guild.idLong }
             ?: return
 
-        group@ for (group in guild.groups) {
+        for (group in guild.groups) {
             for (role in group.roles) {
                 if (activity.applicationIdLong in role.triggers) {
                     member.modifyRoles(rolesToAdd = listOf(role.id), rolesToRemove = group.allRoleIds - role.id).queue()
-                    continue@group
                 }
             }
         }

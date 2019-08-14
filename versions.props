@@ -1,0 +1,5 @@
+net.dv8tion:JDA = 4.0.0_39
+com.jagrosh:jda-utilities*=3.0.1
+com.uchuhimo:konf=0.13.3
+org.apache.commons:commons-lang3=3.9
+ch.qos.logback:logback-classic=1.2.3
