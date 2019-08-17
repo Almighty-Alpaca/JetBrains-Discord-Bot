@@ -14,8 +14,8 @@ class ShutdownCommand : Command() {
         event.jda.shutdown()
 
         with(event.jda.httpClient) {
-            connectionPool().evictAll() // Remove once https://github.com/square/okhttp/issues/4029 has been fixed
-            dispatcher().executorService().shutdown()
+            connectionPool.evictAll() // Remove once https://github.com/square/okhttp/issues/4029 has been fixed
+            dispatcher.executorService.shutdown()
         }
     }
 }
