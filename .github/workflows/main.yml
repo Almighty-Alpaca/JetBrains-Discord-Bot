@@ -17,10 +17,7 @@ jobs:
       - name: Uninstall old Docker version
         run: sudo apt-get remove docker docker-engine docker.io containerd runc
       - name: Enable experimental Docker features
-        run: |
-          echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
-          mkdir -p ~/.docker/
-          echo '{"experimental":true}' | sudo tee ~/.docker/config.json
+        run: echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
       - name: Install latest Docker version
         run: |
           sudo apt-get update
@@ -48,3 +45,5 @@ jobs:
         run: sudo chmod +x ./gradlew
       - name: Run Gradle Wrapper
         run: ./gradlew dockerBuildPush
+        env:
+          DOCKER_CLI_EXPERIMENTAL: enabled
