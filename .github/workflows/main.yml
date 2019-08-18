@@ -17,7 +17,9 @@ jobs:
       - name: Uninstall old Docker version
         run: sudo apt-get remove docker docker-engine docker.io containerd runc
       - name: Enable experimental Docker features
-        run: echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+        run: |
+          echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+          echo '{"experimental":true}' | sudo tee ~/.docker/config.json
       - name: Install latest Docker version
         run: |
           sudo apt-get update
