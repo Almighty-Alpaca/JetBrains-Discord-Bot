@@ -19,6 +19,7 @@ jobs:
       - name: Enable experimental Docker features
         run: |
           echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+          mkdir -p ~/.docker/
           echo '{"experimental":true}' | sudo tee ~/.docker/config.json
       - name: Install latest Docker version
         run: |
