@@ -34,6 +34,8 @@ jobs:
              stable"
           sudo apt-get update
           sudo apt-get install docker-ce docker-ce-cli containerd.io
+      - name: Show Docker info
+        run: docker info
       - name: Docker login
         run: echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
         env:
