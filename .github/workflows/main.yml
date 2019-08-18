@@ -14,10 +14,26 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 11
-      - name: Docker update
-        run: sudo sh -c "$(curl -sSL https://get.docker.com/)"
+      - name: Uninstall old Docker version
+        run: sudo apt-get remove docker docker-engine docker.io containerd runc
       - name: Enable experimental Docker features
         run: echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+      - name: Install latest Docker version
+        run: |
+          sudo apt-get update
+          sudo apt-get install \
+              apt-transport-https \
+              ca-certificates \
+              curl \
+              gnupg-agent \
+              software-properties-common
+          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+          sudo add-apt-repository \
+             "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+             $(lsb_release -cs) \
+             stable"
+          sudo apt-get update
+          sudo apt-get install docker-ce docker-ce-cli containerd.io
       - name: Docker login
         run: echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
         env:
