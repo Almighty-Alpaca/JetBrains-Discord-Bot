@@ -23,7 +23,7 @@ jobs:
         env:
           DOCKER_USERNAME: ${{secrets.docker_username}}
           DOCKER_PASSWORD: ${{secrets.docker_password}}
-      - name: make Gradle Wrapper executable
+      - name: Make Gradle Wrapper executable
         run: sudo chmod +x ./gradlew
       - name: Run Gradle Wrapper
-        run: ./gradlew dockerPush
+        run: ./gradlew dockerBuildPush
