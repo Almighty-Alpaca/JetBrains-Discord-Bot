@@ -36,12 +36,21 @@ class UserActivityStartListener(private val config: Config) : ListenerAdapter() 
             .find { it.id == member.guild.idLong }
             ?: return
 
+        val rolesToAdd = mutableListOf<Long>()
+        val rolesToRemove = mutableListOf<Long>()
+
         for (group in guild.groups) {
             for (role in group.roles) {
                 if (activity.applicationIdLong in role.triggers) {
-                    member.modifyRoles(rolesToAdd = listOf(role.id), rolesToRemove = group.allRoleIds - role.id).queue()
+                    rolesToAdd += listOf(role.id)
+                    rolesToAdd -= group.allRoleIds
+
+                    rolesToRemove += group.allRoleIds
+                    rolesToRemove -= role.id
                 }
             }
         }
+
+        member.modifyRoles(rolesToAdd, rolesToRemove).queue()
     }
 }
