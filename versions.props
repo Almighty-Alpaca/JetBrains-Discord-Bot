@@ -1,5 +1,5 @@
-net.dv8tion:JDA = 4.0.0_42
+net.dv8tion:JDA = 4.0.0_46
 com.jagrosh:jda-utilities*=3.0.1
 com.uchuhimo:konf= 0.14.1
 ch.qos.logback:logback-classic=1.2.3
-com.squareup.okhttp3:okhttp=4.1.0
+com.squareup.okhttp3:okhttp=4.1.1
