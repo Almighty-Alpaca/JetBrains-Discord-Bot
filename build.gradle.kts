@@ -16,6 +16,8 @@ plugins {
 group = "com.almightyalpaca.discord.bot.jetbrains"
 version = "1.0.0"
 
+val dockerTag = "almightyalpaca/jetbrains-discord-integration-bot"
+
 application {
     mainClassName = "com.almightyalpaca.discord.bot.jetbrains.MainKt"
 }
@@ -41,7 +43,7 @@ dependencies {
     // JDA-Utilities
     implementation(group = "com.jagrosh", name = "jda-utilities-command")
 
-    // Konf (without unused language support)
+    // Konf (support for unused formats removed)
     implementation(group = "com.uchuhimo", name = "konf") {
         exclude(group = "com.moandjiezana.toml", module = "toml4j")
         exclude(group = "org.dom4j", module = "dom4j")
@@ -57,18 +59,19 @@ dependencies {
     implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
 }
 
-val shadowJar = tasks["shadowJar"] as ShadowJar
-
 tasks {
     val dockerBuildDir = File(buildDir, "docker")
 
     val dockerCopy by registering(Sync::class) {
         group = "docker"
+
+        val shadowJar = project.tasks["shadowJar"] as ShadowJar
+
         dependsOn(shadowJar)
 
         from("Dockerfile")
 
-        from(shadowJar.get().archiveFile) {
+        from(shadowJar.archiveFile) {
             rename { "app.jar" }
         }
 
@@ -127,7 +130,7 @@ tasks {
             "docker", "buildx",
             "build",
             "--platform", "linux/amd64,linux/arm64,linux/arm/v7",
-            "--tag", "almightyalpaca/jetbrains-discord-integration-bot",
+            "--tag", dockerTag,
             "."
         )
     }
@@ -144,7 +147,7 @@ tasks {
             // TODO: build and export multi-arch manifest as soon as Docker supports it
             // "--platform", "linux/amd64,linux/arm/v7",
             "--platform", "linux/amd64",
-            "--tag", "almightyalpaca/jetbrains-discord-integration-bot",
+            "--tag", dockerTag,
             "--load",
             "."
         )
@@ -160,7 +163,7 @@ tasks {
             "docker", "buildx",
             "build",
             "--platform", "linux/amd64,linux/arm64,linux/arm/v7",
-            "--tag", "almightyalpaca/jetbrains-discord-integration-bot",
+            "--tag", dockerTag,
             "--push",
             "."
         )
@@ -175,7 +178,7 @@ tasks {
             "--name", "${project.name}-Dev",
             "--rm",
             "--mount", "type=bind,source=${project.file("config.yaml").absolutePath},target=/config/config.yaml",
-            "almightyalpaca/jetbrains-discord-integration-bot"
+            dockerTag
         )
     }
 
@@ -189,7 +192,7 @@ tasks {
             "--name", "${project.name}-Dev",
             "--rm",
             "--mount", "type=bind,source=${project.file("config.yaml").absolutePath},target=/config/config.yaml",
-            "almightyalpaca/jetbrains-discord-integration-bot"
+            dockerTag
         )
     }
 
@@ -240,14 +243,6 @@ tasks {
         ignore("org.jetbrains", "annotations")
     }
 
-    create("cacheDependencies") {
-        doLast {
-            configurations
-                .filter { conf -> conf.isCanBeResolved }
-                .onEach { conf -> conf.files }
-        }
-    }
-
     dependencyUpdates {
         gradleReleaseChannel = GradleReleaseChannel.CURRENT.toString()
 
@@ -257,7 +252,7 @@ tasks {
                     sequenceOf("alpha", "beta", "rc", "cr", "m", "preview", "eap", "pr")
                         .map { qualifier -> Regex(".*[.-]$qualifier[.\\d-_]*", RegexOption.IGNORE_CASE) }
                         .any { regex -> regex.matches(candidate.version) }
-                        .let { if (it) reject("snapshot") }
+                        .onlyIf { reject("snapshot") }
                 }
             }
         }
@@ -267,4 +262,12 @@ tasks {
         distributionType = Wrapper.DistributionType.ALL
         gradleVersion = "5.6.2"
     }
+}
+
+inline fun <R> Boolean.onlyIf(block: () -> R): R? {
+    if (this) {
+        return block()
+    }
+
+    return null
 }
