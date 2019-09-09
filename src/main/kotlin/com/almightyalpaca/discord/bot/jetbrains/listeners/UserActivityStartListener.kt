@@ -42,8 +42,8 @@ class UserActivityStartListener(private val config: Config) : ListenerAdapter() 
         for (group in guild.groups) {
             for (role in group.roles) {
                 if (activity.applicationIdLong in role.triggers) {
-                    rolesToAdd += listOf(role.id)
                     rolesToAdd -= group.allRoleIds
+                    rolesToAdd += listOf(role.id)
 
                     rolesToRemove += group.allRoleIds
                     rolesToRemove -= role.id
