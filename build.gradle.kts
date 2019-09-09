@@ -64,6 +64,7 @@ tasks {
 
     val dockerCopy by registering(Sync::class) {
         group = "docker"
+        description = "Copies sources and Dockerfile to build directory"
 
         val shadowJar = project.tasks["shadowJar"] as ShadowJar
 
@@ -80,6 +81,7 @@ tasks {
 
     val dockerContextCreate by registering(Exec::class) {
         group = "docker"
+        description = "Creates Docker build context"
 
         errorOutput = OutputStream.nullOutputStream()
         standardOutput = OutputStream.nullOutputStream()
@@ -96,6 +98,8 @@ tasks {
 
     val dockerContextUse by registering(Exec::class) {
         group = "docker"
+        description = "Selects Docker build context as active one"
+
         dependsOn(dockerContextCreate)
 
         commandLine = listOf(
@@ -106,6 +110,7 @@ tasks {
 
     create<Exec>("dockerContextDelete") {
         group = "docker"
+        description = "Deletes Docker build context"
 
         commandLine = listOf(
             "docker", "buildx",
@@ -115,6 +120,7 @@ tasks {
 
     val dockerPrepare by registering {
         group = "docker"
+        description = "Copies files into build directory and prepares Docker build context"
 
         dependsOn(dockerCopy)
         dependsOn(dockerContextUse)
@@ -122,6 +128,8 @@ tasks {
 
     create<Exec>("dockerBuild") {
         group = "docker"
+        description = "Builds Docker image"
+
         dependsOn(dockerPrepare)
 
         workingDir = dockerBuildDir
@@ -137,6 +145,8 @@ tasks {
 
     val dockerBuildLoad by registering(Exec::class) {
         group = "docker"
+        description = "Builds Docker image and loads it into local daemon"
+
         dependsOn(dockerPrepare)
 
         workingDir = dockerBuildDir
@@ -155,6 +165,8 @@ tasks {
 
     val dockerBuildPush by registering(Exec::class) {
         group = "docker"
+        description = "Builds Docker image and pushes it to Docker Hub"
+
         dependsOn(dockerPrepare)
 
         workingDir = dockerBuildDir
@@ -171,6 +183,8 @@ tasks {
 
     create<Exec>("dockerRun") {
         group = "docker"
+        description = "Runs Docker image"
+
         dependsOn(dockerBuildLoad)
 
         commandLine = listOf(
@@ -184,6 +198,8 @@ tasks {
 
     create<Exec>("dockerRunDaemon") {
         group = "docker"
+        description = "Runs Docker image as daemon"
+
         dependsOn(dockerBuildLoad)
 
         commandLine = listOf(
@@ -198,6 +214,7 @@ tasks {
 
     create<Exec>("dockerStatus") {
         group = "docker"
+        description = "Shows stats about running Docker image"
 
         commandLine = listOf(
             "docker", "container", "ls", "--filter", "name=${project.name}-Dev"
@@ -206,6 +223,7 @@ tasks {
 
     create<Exec>("dockerStop") {
         group = "docker"
+        description = "Stops Docker image"
 
         commandLine = listOf(
             "docker", "container", "stop", "${project.name}-Dev"
@@ -214,18 +232,6 @@ tasks {
 
     withType<KotlinCompile> {
         kotlinOptions.jvmTarget = "1.8"
-    }
-
-    create("ci") {
-        group = "ci"
-
-        val branch by lazy { System.getenv("TRAVIS_BRANCH") }
-        val isPR by lazy { System.getenv("TRAVIS_PULL_REQUEST") != "false" }
-
-        if (branch == "master" && !isPR)
-            dependsOn(dockerBuildPush)
-        else
-            dependsOn("test")
     }
 
     checkUnusedDependencies {
@@ -264,10 +270,7 @@ tasks {
     }
 }
 
-inline fun <R> Boolean.onlyIf(block: () -> R): R? {
-    if (this) {
-        return block()
-    }
-
-    return null
+inline fun <R> Boolean.onlyIf(block: () -> R): R? = when (this) {
+    true -> block()
+    false -> null
 }
