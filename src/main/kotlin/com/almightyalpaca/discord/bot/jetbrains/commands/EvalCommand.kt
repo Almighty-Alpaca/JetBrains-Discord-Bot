@@ -11,12 +11,12 @@ import javax.script.ScriptEngineManager
 import javax.script.ScriptException
 
 private const val imports = """
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.self
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.bot
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.channel
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.guild
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.client
-    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.Companion.config
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.self
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.bot
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.channel
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.guild
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.client
+    import com.almightyalpaca.discord.bot.jetbrains.commands.EvalCommand.EvalVars.config
     """
 
 class EvalCommand(private val config: Config) : Command() {
@@ -32,12 +32,14 @@ class EvalCommand(private val config: Config) : Command() {
     override fun execute(event: CommandEvent) {
         val engine = manager.getEngineByExtension("kts")
 
-        EvalVars.self = event.member
-        EvalVars.bot = event.selfMember
-        EvalVars.channel = event.textChannel
-        EvalVars.guild = event.guild
-        EvalVars.client = event.client
-        EvalVars.config = config
+        with(EvalVars) {
+            self = event.member
+            bot = event.selfMember
+            channel = event.textChannel
+            guild = event.guild
+            client = event.client
+            config = this@EvalCommand.config
+        }
 
         val startTime = System.nanoTime()
 
