@@ -8,6 +8,7 @@ import com.almightyalpaca.discord.bot.jetbrains.utils.setCoOwnerIds
 import com.almightyalpaca.discord.bot.jetbrains.utils.setOwnerId
 import com.jagrosh.jdautilities.command.CommandClientBuilder
 import com.uchuhimo.konf.Config
+import com.uchuhimo.konf.source.yaml
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.entities.Activity
 import java.nio.file.Paths
@@ -30,7 +31,7 @@ fun main() {
     val client = CommandClientBuilder()
         .setOwnerId(config[Settings.owner])
         .setPrefix(config[Settings.command_prefix])
-        .setCoOwnerIds(config[Settings.co_owners])
+        .setCoOwnerIds(config[Settings.coOwners])
         // .setGame(Game.of(config[Bot.Status.type], config[Bot.Status.name], config[Bot.Status.url]))
         .setActivity(Activity.playing("with roles"))
         // .setServerInvite(config[Guild.invite])

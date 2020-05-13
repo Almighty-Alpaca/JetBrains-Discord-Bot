@@ -8,7 +8,7 @@ object Settings : ConfigSpec("") {
     val token by required<String>()
 
     val owner by required<Long>()
-    val co_owners by optional<Set<Long>>(Collections.emptySet())
+    val coOwners by optional<Set<Long>>(Collections.emptySet())
 
     val command_prefix by required<String>()
 

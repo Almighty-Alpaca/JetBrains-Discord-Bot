@@ -9,7 +9,7 @@ plugins {
     kotlin("jvm")
     id("com.github.ben-manes.versions")
     id("com.github.johnrengelman.shadow")
-    id("com.palantir.consistent-versions")
+    // id("com.palantir.consistent-versions")
     id("com.palantir.baseline-exact-dependencies")
 }
 
@@ -27,6 +27,12 @@ repositories {
 }
 
 dependencies {
+    val versionJda: String by project
+    val versionOkHttp: String by project
+    val versionJdaUtilities: String by project
+    val versionKonf: String by project
+    val versionLogback: String by project
+
     // Kotlin standard library
     implementation(kotlin(module = "stdlib"))
 
@@ -36,15 +42,15 @@ dependencies {
     implementation(kotlin(module = "scripting-compiler-embeddable"))
 
     // JDA (without audio)
-    implementation(group = "net.dv8tion", name = "JDA") {
+    implementation(group = "net.dv8tion", name = "JDA", version = versionJda) {
         exclude(group = "club.minnced", module = "opus-java")
     }
 
     // JDA-Utilities
-    implementation(group = "com.jagrosh", name = "jda-utilities-command")
+    implementation(group = "com.jagrosh", name = "jda-utilities-command", version = versionJdaUtilities)
 
     // Konf (support for unused formats removed)
-    implementation(group = "com.uchuhimo", name = "konf") {
+    implementation(group = "com.uchuhimo", name = "konf", version = versionKonf) {
         exclude(group = "com.moandjiezana.toml", module = "toml4j")
         exclude(group = "org.dom4j", module = "dom4j")
         exclude(group = "org.eclipse.jgit", module = "org.eclipse.jgit")
@@ -53,10 +59,10 @@ dependencies {
         // exclude(group = "", module = "")
     }
 
-    implementation(group = "com.squareup.okhttp3", name = "okhttp")
+    implementation(group = "com.squareup.okhttp3", name = "okhttp", version = versionOkHttp)
 
     // Logback Classic
-    implementation(group = "ch.qos.logback", name = "logback-classic", version = "1.2.3")
+    implementation(group = "ch.qos.logback", name = "logback-classic", version = versionLogback)
 }
 
 tasks {
